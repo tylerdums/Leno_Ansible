@@ -1,0 +1,18 @@
+# playbook to join standalone machine to domain contoso.com
+---
+- hosts: joindomain
+  gather_facts: false
+  tasks:
+    - name: join to domain contoso.com
+      ansible.windows.win_domain_membership:
+        dns_domain_name: contoso.com
+        domain_admin_user: domjoin@contoso.com
+        domain_admin_password: Password01!
+        domain_ou_path: "OU=WinSrv,OU=device,DC=contoso,DC=com"
+        state: domain
+      register: domain_state
+
+    - name: reboot after joining domain
+      ansible.windows.win_command:
+        shutdown -r -t 5 -c "System rebooting by Ansible in 5 seconds."
+      when: domain_state.reboot_required

@@ -1,0 +1,16 @@
+# var for standalone servers
+# use ntlm http(5985) and build(SID 500) account
+# will still use encryption even without ansible_winrm_message_encryption
+---
+ansible_user: tylerdu
+ansible_connection: winrm
+ansible_port: 5985
+ansible_winrm_transport: ntlm
+ansible_winrm_message_encryption: always
+ansible_password: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          30643439323161653665346539373431623136346362303033643163363232373638356661636439
+          6463343062393564373431623939346235353838386638330a323361393565666232363462613535
+          30323937626235663361313066656464623335333235336437396638356464666634653266393662
+          3738356265653964620a373264363864643166653034363466393064663034336563336462356461
+          3937

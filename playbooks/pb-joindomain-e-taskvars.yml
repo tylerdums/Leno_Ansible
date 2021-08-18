@@ -1,0 +1,26 @@
+# playbook to join 'joindomain' group to contoso.com with encrypted password
+---
+- hosts: joindomain
+  gather_facts: false
+  tasks:
+    - name: join to domain contoso.com
+      ansible.windows.win_domain_membership:
+        dns_domain_name: contoso.com
+        domain_admin_user: domjoin@contoso.com
+        domain_admin_password: "{{ var_joinpw }}"
+        domain_ou_path: "OU=WinSrv,OU=devices,DC=contoso,DC=com"
+        state: domain
+      register: domain_state
+      vars:
+        var_joinpw: !vault |
+          $ANSIBLE_VAULT;1.2;AES256;joinpw
+          35303733366530663430643563346237373233613433303934306265383239663737666230386363
+          3332643962393539303162333065383761643232386366390a653361386463613639316435643465
+          31386237343165313064333738383532333064356334313064616336653263663565666633363637
+          6435353166333761340a363536613231346636626363393932363233353737376131306662636231
+          6236
+
+    - name: reboot after joining domain
+      ansible.windows.win_command:
+        shutdown -r -t 5 -c "System rebooting by Ansible in 5 seconds."
+      when: domain_state.reboot_required

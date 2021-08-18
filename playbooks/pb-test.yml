@@ -1,0 +1,17 @@
+# simple playbook to test connectivity on standalone group
+---
+- hosts: all
+  gather_facts: true
+  tasks:
+    - name: ping the host
+      ansible.windows.win_ping:
+
+    - name: create folder under c:\SysAdmin
+      ansible.windows.win_file:
+        path: C:\SysAdmin\cache
+        state: directory
+
+    - name: copy a random file to C:\SysAdmin\cache
+      ansible.windows.win_copy:
+        src: /home/labuser_td/ansible/README.md
+        dest: C:\SysAdmin\cache

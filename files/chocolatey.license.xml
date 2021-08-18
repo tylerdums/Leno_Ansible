@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<license id="7304dbbf-070b-4207-88ea-724fc6a5ad59" expiration="2021-09-03T00:00:00.0000000" type="Trial">
+  <name>Morgan Stanley ENTERPRISE TECH &amp; SERVICES  [100] (tylerdums@outlook.com)</name>
+  <Signature xmlns="http://www.w3.org/2000/09/xmldsig#">
+    <SignedInfo>
+      <CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315" />
+      <SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256" />
+      <Reference URI="">
+        <Transforms>
+          <Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature" />
+        </Transforms>
+        <DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256" />
+        <DigestValue>a0uhXLwqQKg4WfFSyp5JOMJWXBDOmnOajYKlcl6nySc=</DigestValue>
+      </Reference>
+    </SignedInfo>
+    <SignatureValue>Y+974N33Y5ddDK2j5F1M5yXXfH+9suL5leYnLNSok/1Nm7r30k07bxDHi6/0y3NnYb32NmsT8FHcut9gtfWPprYo6tmiS4a0pmkHhnsCH5j0S+PI30MGy03uMramj5nJqbB2vGTliM8CmZJO+FsnjCg7QpxlQxm0cCfNZbbMXTg=</SignatureValue>
+  </Signature>
+</license>

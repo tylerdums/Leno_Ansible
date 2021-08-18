@@ -1,0 +1,57 @@
+# install chocolatey and configure C4B
+---
+- name: Setup Chocolatey for Business (C4B)
+  hosts: chocolatey
+  gather_facts: false
+
+  vars:
+    choco_packages:
+      - name: 7zip
+
+    choco_features:
+      - name: useBackgroundService
+      - name: useBackgroundServiceWithNonAdministratorsOnly
+      - name: allowBackgroundServiceUninstallsFromUserInstallsOnly
+      - name: useChocolateyCentralManagement
+      - name: useChocolateyCentralManagementDeployments
+
+    choco_CCM_features:
+      - name: useChocolateyCentralManagement
+      - name: useChocolateyCentralManagementDeployments
+
+  tasks:
+    - name: Remove the default public source
+      chocolatey.chocolatey.win_chocolatey_source:
+        name: chocolatey
+        state: absent
+
+    - name: Add new internal source
+      chocolatey.chocolatey.win_chocolatey_source:
+        name: ChocolateyInternal
+        state: present
+        priority: 1
+        source: http://azeutlart01:8081/artifactory/api/nuget/TylerRepoNuget
+
+    - name: Disable the default public source for licenced edition
+      chocolatey.chocolatey.win_chocolatey_source:
+        name: chocolatey.licensed
+        state: disabled
+
+    - name: Install Chocolatey packages
+      chocolatey.chocolatey.win_chocolatey:
+        name: "{{ item.name }}"
+        state: latest
+        source: ChocolateyInternal
+      loop: "{{ choco_packages }}"
+
+    - name: Set Central Management Service URL
+      chocolatey.chocolatey.win_chocolatey_config:
+        name: CentralManagementServiceUrl
+        state: present
+        value: https://azeutwcho01.contoso.com:24020/ChocolateyManagementService
+
+    - name: Opt-in to Central Management & Deployments
+      chocolatey.chocolatey.win_chocolatey_feature:
+        name: "{{ item.name }}"
+        state: enabled
+      loop: "{{ choco_CCM_features }}"

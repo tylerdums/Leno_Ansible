@@ -1,0 +1,14 @@
+# playbook to install chocolatey client
+# use win_shell to execute the ChocolateyInstall.ps1
+# use this playbook, there is no need to setup generic repo
+---
+- hosts: contoso
+  gather_facts: false
+  tasks:
+    - name: copy ChocolateyInstall.ps1 to Sysadmin\cache
+      ansible.windows.win_copy:
+        src: /home/labuser_td/ansible/files/ChocolateyInstall.ps1
+        dest: C:\SysAdmin\cache
+
+    - name: execute ChocolateyInstall.ps1
+      ansible.windows.win_shell: C:\SysAdmin\cache\ChocolateyInstall.ps1

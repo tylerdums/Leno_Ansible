@@ -1,0 +1,10 @@
+# playbook to install chocolatey client
+---
+- hosts: contoso
+  gather_facts: false
+  tasks:
+    - name: Ensure Chocolatey installed from internal repo
+      chocolatey.chocolatey.win_chocolatey:
+        name: chocolatey
+        state: present
+        source: http://azeutlart01:8082/artifactory/TylerRepoGeneric/EUT/chocolatey/chocolatey-10.ps1

@@ -1,0 +1,16 @@
+# var for servers in 'contoso' domain
+# use Kerberos https(5986) and labsvc-eut-ansible account
+# will still use encryption even without ansible_winrm_message_encryption
+---
+ansible_user: labsvc-eut-ansible@CONTOSO.COM
+ansible_connection: winrm
+ansible_port: 5985
+ansible_winrm_transport: kerberos
+ansible_winrm_message_encryption: always
+ansible_password: !vault |
+          $ANSIBLE_VAULT;1.2;AES256;ansibleIDpw
+          39373762633438653239343234396438353765316533636362616464303231653737363066356438
+          3537313834623332366465303032356462633862326263380a393666393030613837633936396339
+          30623839613431383065336438363737613462396466393364653164636236316236623566396338
+          6262316539333534330a643232373864353336313537636239613365386530346130333034613865
+          3766

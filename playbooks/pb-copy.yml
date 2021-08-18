@@ -1,0 +1,10 @@
+# copy cert from remote to Ansible host
+---
+- hosts: all
+  gather_facts: true
+  tasks:
+    - name: copy cert pem from remote to local
+      ansible.windows.win_copy:
+        src: C:\temp\Cert
+        dest: /home/labuser_td/ansible/cert
+        remote_src: true

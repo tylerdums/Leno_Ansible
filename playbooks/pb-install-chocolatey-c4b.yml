@@ -1,0 +1,118 @@
+# install chocolatey and configure C4B
+---
+- name: Setup Chocolatey for Business (C4B)
+  hosts: all
+  gather_facts: false
+
+  vars:
+    choco_packages:
+      - name: 7zip
+
+    choco_features:
+      - name: useBackgroundService
+      - name: useBackgroundServiceWithNonAdministratorsOnly
+      - name: allowBackgroundServiceUninstallsFromUserInstallsOnly
+      - name: useChocolateyCentralManagement
+      - name: useChocolateyCentralManagementDeployments
+
+    choco_CCM_features:
+      - name: useChocolateyCentralManagement
+      - name: useChocolateyCentralManagementDeployments
+
+  tasks:
+    - name: Determine if chocolatey is installed already
+      ansible.windows.win_shell: (Get-Command choco).Path
+      register: get_command_choco
+
+    - name: Block to install chocolatey
+      block:
+        - name: create c:\SysAdmin\cache
+          ansible.windows.win_file:
+            path: C:\SysAdmin\cache
+            state: directory
+
+        - name: Copy ChocolateyInstall.ps1 to SysAdmin\cache
+          ansible.windows.win_copy:
+            src: /home/labuser_td/ansible/files/ChocolateyInstall.ps1
+            dest: C:\SysAdmin\cache
+
+        - name: execute ChocolateyInstall.ps1
+          ansible.windows.win_shell: C:\SysAdmin\cache\ChocolateyInstall.ps1
+      when: not get_command_choco.stderr == ""
+
+    - name: Remove the default public source
+      chocolatey.chocolatey.win_chocolatey_source:
+        name: chocolatey
+        state: absent
+
+    - name: Add new internal source
+      chocolatey.chocolatey.win_chocolatey_source:
+        name: ChocolateyInternal
+        state: present
+        priority: 1
+        source: http://azeutlart01:8081/artifactory/api/nuget/TylerRepoNuget
+
+    - name: Create Chocolatey license directory
+      ansible.windows.win_file:
+        path: C:\ProgramData\chocolatey\license
+        state: directory
+
+    - name: Install Chocolatey license
+      ansible.windows.win_copy:
+        src: /home/labuser_td/ansible/files/chocolatey.license.xml
+        dest: C:\ProgramData\chocolatey\license\chocolatey.license.xml
+
+    - name: Install Chocolatey licensed extension
+      chocolatey.chocolatey.win_chocolatey:
+        name: chocolatey.extension
+        state: latest
+        source: ChocolateyInternal
+        package_params: /NoContextMenu
+
+    - name: Disable the default public source for licenced edition
+      chocolatey.chocolatey.win_chocolatey_source:
+        name: chocolatey.licensed
+        state: disabled
+
+    - name: Install Chocolatey GUI also dependencies dotnet and core extension
+      chocolatey.chocolatey.win_chocolatey:
+        name: ChocolateyGUI
+        state: latest
+        source: ChocolateyInternal
+
+    - name: Install Chocolatey agent
+      chocolatey.chocolatey.win_chocolatey:
+        name: chocolatey-agent
+        state: latest
+        source: ChocolateyInternal
+        package_params: /UseDefaultChocolateyConfigUser
+
+    - name: Enable features for self-service
+      chocolatey.chocolatey.win_chocolatey_feature:
+        name: "{{ item.name }}"
+        state: enabled
+      loop: "{{ choco_features }}"
+
+    - name: Disable showNonElevatedWarnings feature for self-service
+      chocolatey.chocolatey.win_chocolatey_feature:
+        name: showNonElevatedWarnings
+        state: disabled
+
+    - name: Install Chocolatey packages
+      chocolatey.chocolatey.win_chocolatey:
+        name: "{{ item.name }}"
+        state: latest
+        source: ChocolateyInternal
+      loop: "{{ choco_packages }}"
+
+    - name: Set Central Management Service URL
+      chocolatey.chocolatey.win_chocolatey_config:
+        name: CentralManagementServiceUrl
+        state: present
+        value: https://azeutwcho01:24020/ChocolateyManagementService
+
+    - name: Opt-in to Central Management & Deployments
+      chocolatey.chocolatey.win_chocolatey_feature:
+        name: "{{ item.name }}"
+        state: enabled
+      loop: "{{ choco_CCM_features }}"

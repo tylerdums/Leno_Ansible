@@ -1,0 +1,20 @@
+# playbook to install chocolatey client
+# use block to install chocolatey only when needed
+---
+- hosts: contoso
+  gather_facts: false
+  tasks:
+    - name: determine if chocolatey is installed already
+      ansible.windows.win_shell: (Get-Command choco).Path
+      register: get_command_choco
+
+    - name: block to install chcolatey
+      block:
+        - name: copy ChocolateyInstall.ps1 to Sysadmin\cache
+          ansible.windows.win_copy:
+            src: /home/labuser_td/ansible/files/ChocolateyInstall.ps1
+            dest: C:\SysAdmin\cache
+
+        - name: execute ChocolateyInstall.ps1
+          ansible.windows.win_shell: C:\SysAdmin\cache\ChocolateyInstall.ps1
+      when: not get_command_choco.stderr == ""
